@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#168a55">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>EletroCharge</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- TELA DE AUTENTICAÇÃO -->
+<div id="tela-auth" class="tela-auth">
+    <div class="cartao-auth">
+        <div class="marca-auth">⚡ <span>EletroCharge</span></div>
+        <p class="sub-auth">Encontre, reserve e pague seu carregamento elétrico</p>
+
+        <a href="#" id="link-instalar" class="link-instalar oculto">
+            <img src="/icons/icon.svg" alt="EletroCharge" width="22" height="22">
+            <span>👉 Instalar EletroCharge no celular</span>
+        </a>
+        <a href="/instalar.html" target="_blank" class="link-qrcode">📲 Instalar via QR Code (de outro celular)</a>
+
+        <div class="abas-auth">
+            <button id="aba-login" class="aba ativa" onclick="mudarAbaAuth('login')">Entrar</button>
+            <button id="aba-cadastro" class="aba" onclick="mudarAbaAuth('cadastro')">Criar conta</button>
+        </div>
+
+        <form id="form-login" class="form-auth">
+            <label>E-mail</label>
+            <input type="email" id="login-email" required autocomplete="email">
+            <label>Senha</label>
+            <input type="password" id="login-senha" required autocomplete="current-password">
+            <button type="submit" class="botao primario largo">Entrar</button>
+        </form>
+
+        <form id="form-cadastro" class="form-auth oculto">
+            <label>Nome completo</label>
+            <input type="text" id="cad-nome" required>
+            <label>E-mail</label>
+            <input type="email" id="cad-email" required autocomplete="email">
+            <label>Telefone (opcional)</label>
+            <input type="tel" id="cad-telefone" placeholder="(45) 99999-0000">
+            <label>Senha (mín. 6 caracteres)</label>
+            <input type="password" id="cad-senha" required minlength="6" autocomplete="new-password">
+            <button type="submit" class="botao primario largo">Criar conta</button>
+        </form>
+
+        <p id="erro-auth" class="erro-auth oculto"></p>
+    </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="app" class="app oculto">
+
+    <header class="topo">
+        <div class="marca">⚡ EletroCharge</div>
+        <div class="topo-acoes">
+            <button id="btn-instalar" class="botao-icone oculto" title="Instalar aplicativo">
+                <img src="/icons/icon.svg" alt="Instalar" width="20" height="20">
+            </button>
+            <button id="btn-gps" class="botao-icone" title="Minha localização">⌖</button>
+        </div>
+    </header>
+
+    <div id="banner-instalar-ios" class="aviso oculto">
+        📲 Para instalar: toque em <strong>Compartilhar</strong> (⬆️) e depois em
+        <strong>"Adicionar à Tela de Início"</strong>.
+        <button class="botao-icone" onclick="document.getElementById('banner-instalar-ios').classList.add('oculto')">✕</button>
+    </div>
+
+    <main class="conteudo">
+
+        <section id="tab-mapa" class="tab ativa">
+            <div class="filtros">
+                <button class="filtro ativo" data-filtro="todos">Todos</button>
+                <button class="filtro" data-filtro="livre">Disponíveis</button>
+                <button class="filtro" data-filtro="rapido">Rápidos</button>
+                <button class="filtro" data-filtro="ccs">CCS2</button>
+            </div>
+
+            <div id="mapa" class="mapa"></div>
+            <p id="aviso-mapa" class="aviso oculto"></p>
+
+            <div id="lista" class="lista"></div>
+        </section>
+
+        <section id="tab-historico" class="tab">
+            <h2 class="titulo-secao">Histórico de pagamentos</h2>
+            <div id="lista-historico" class="lista"></div>
+        </section>
+
+        <section id="tab-perfil" class="tab">
+            <h2 class="titulo-secao">Meu perfil</h2>
+            <div id="dados-perfil" class="cartao-perfil"></div>
+            <button id="btn-sair" class="botao perigo largo">Sair da conta</button>
+        </section>
+
+        <section id="tab-admin" class="tab">
+            <h2 class="titulo-secao">Painel administrativo</h2>
+
+            <div id="resumo-admin" class="grid-resumo"></div>
+
+            <h3 class="subtitulo-secao">Estações de recarga</h3>
+            <form id="form-estacao" class="form-auth">
+                <label>Nome</label>
+                <input id="estacao-nome" required>
+                <label>Endereço</label>
+                <input id="estacao-endereco" required>
+
+                <label>Localização</label>
+                <button type="button" class="botao" onclick="usarLocalizacaoNaEstacao()">📍 Usar minha localização atual</button>
+                <input id="estacao-latitude" type="number" step="any" placeholder="Latitude" required>
+                <input id="estacao-longitude" type="number" step="any" placeholder="Longitude" required>
+
+                <label>Preço por kWh (R$)</label>
+                <input id="estacao-preco" type="number" min="0.01" step="0.01" required>
+                <label>Potência (kW)</label>
+                <input id="estacao-potencia" type="number" min="1" required>
+                <label>Conector</label>
+                <select id="estacao-conector">
+                    <option value="CCS2">CCS2</option>
+                    <option value="Tipo 2">Tipo 2</option>
+                    <option value="CHAdeMO">CHAdeMO</option>
+                </select>
+                <label><input id="estacao-rapido" type="checkbox" style="width:auto;display:inline-block;margin-right:6px;">Carregamento rápido</label>
+                <label>Vagas totais</label>
+                <input id="estacao-vagas" type="number" min="1" value="1" required>
+                <label>Status</label>
+                <select id="estacao-status">
+                    <option value="livre">Livre</option>
+                    <option value="ocupado">Ocupado</option>
+                    <option value="offline">Offline</option>
+                </select>
+
+                <label>Identidade OCPP (ID configurado no carregador físico) — opcional</label>
+                <input id="estacao-ocpp" placeholder="ex.: CARREGADOR-001">
+                <p class="nota-pagamento" style="text-align:left;margin-top:-8px;">
+                    Se preenchido, o status/vagas passam a ser atualizados automaticamente pelo carregador real
+                    (protocolo OCPP), assim que ele conectar em ws://SEU_SERVIDOR/ocpp/ID.
+                </p>
+
+                <button type="submit" id="btn-salvar-estacao" class="botao primario largo">Cadastrar estação</button>
+                <button type="button" id="btn-cancelar-edicao-estacao" class="botao largo oculto" onclick="cancelarEdicaoEstacao()">Cancelar edição</button>
+            </form>
+            <div id="lista-estacoes-admin" class="lista"></div>
+
+            <h3 class="subtitulo-secao">Parceiros (donos de estação)</h3>
+            <form id="form-parceiro" class="form-auth">
+                <label>Nome do parceiro</label>
+                <input id="parceiro-nome" required>
+                <label>E-mail</label>
+                <input id="parceiro-email" type="email" required>
+                <label>Comissão (%) — em branco usa o padrão do sistema</label>
+                <input id="parceiro-comissao" type="number" min="0" max="100" step="0.1" placeholder="ex.: 15">
+                <button type="submit" class="botao primario largo">Cadastrar parceiro</button>
+            </form>
+            <div id="lista-parceiros" class="lista"></div>
+
+            <h3 class="subtitulo-secao">Vincular estação a um parceiro</h3>
+            <form id="form-vincular" class="form-auth">
+                <label>Estação</label>
+                <select id="vincular-estacao"></select>
+                <label>Parceiro</label>
+                <select id="vincular-parceiro"></select>
+                <button type="submit" class="botao largo">Vincular</button>
+            </form>
+
+            <h3 class="subtitulo-secao">Transações</h3>
+            <div id="lista-transacoes-admin" class="lista"></div>
+        </section>
+
+    </main>
+
+    <div id="painel-pagamento" class="painel oculto">
+        <div class="painel-conteudo">
+            <div class="painel-topo">
+                <h2>💳 Pagamento</h2>
+                <button class="botao-icone" onclick="fecharPainelPagamento()">✕</button>
+            </div>
+
+            <p id="estacao-pagamento" class="sub-painel"></p>
+
+            <label>Valor (R$)</label>
+            <input id="valor-pagamento" type="number" value="20" min="1" step="0.01">
+
+            <label>Forma de pagamento</label>
+            <select id="metodo-pagamento">
+                <option value="pix">Pix</option>
+                <option value="cartao">Cartão de crédito</option>
+                <option value="boleto">Boleto</option>
+            </select>
+
+            <button id="btn-confirmar-pagamento" class="botao primario largo" onclick="confirmarPagamento()">
+                Ir para pagamento seguro
+            </button>
+            <p class="nota-pagamento">Você será redirecionado ao checkout oficial do Mercado Pago.</p>
+            <p id="resultado-pagamento" class="erro-auth oculto"></p>
+        </div>
+    </div>
+
+    <nav class="nav-inferior">
+        <button class="nav-item ativo" data-tab="mapa">
+            <span class="nav-icone">🗺️</span><span>Mapa</span>
+        </button>
+        <button class="nav-item" data-tab="historico">
+            <span class="nav-icone">🧾</span><span>Histórico</span>
+        </button>
+        <button class="nav-item" data-tab="perfil">
+            <span class="nav-icone">👤</span><span>Perfil</span>
+        </button>
+        <button id="nav-admin" class="nav-item oculto" data-tab="admin">
+            <span class="nav-icone">🛠️</span><span>Admin</span>
+        </button>
+    </nav>
+</div>
+
+<div id="toast" class="toast oculto"></div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

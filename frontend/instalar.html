@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Instalar EletroCharge no celular</title>
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(160deg, #0e6b41, #168a55 55%, #1fa868);
+    color: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 24px; text-align: center;
+  }
+  .marca { display: flex; align-items: center; gap: 8px; font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
+  .marca img { width: 28px; height: 28px; }
+  .sub { color: #d7f5e6; margin-bottom: 26px; font-size: 0.95rem; }
+  #qr { background: #fff; padding: 18px; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.35); }
+  #qr img { display: block; width: 260px; height: 260px; }
+  .url {
+    margin-top: 20px; background: rgba(255,255,255,0.12); padding: 10px 18px;
+    border-radius: 8px; font-size: 0.82rem; word-break: break-all; max-width: 320px;
+  }
+  .steps {
+    margin-top: 26px; background: rgba(255,255,255,0.12); border-radius: 12px;
+    padding: 16px 20px; max-width: 320px; text-align: left;
+  }
+  .steps h2 { font-size: 0.85rem; color: #d7f5e6; margin-bottom: 10px; }
+  .steps li { font-size: 0.88rem; margin-bottom: 6px; list-style: none; }
+  .steps li::before { content: attr(data-n) ". "; font-weight: bold; color: #baf5d6; }
+  .aviso {
+    margin-top: 18px; font-size: 0.78rem; color: #d7f5e6; max-width: 320px;
+  }
+</style>
+</head>
+<body>
+  <div class="marca"><img src="/icons/icon-192.png" alt=""><span>EletroCharge</span></div>
+  <p class="sub">Aponte a câmera do celular para o QR Code</p>
+
+  <div id="qr"><img id="qrImg" alt="QR Code para instalar o EletroCharge"></div>
+  <div class="url" id="urlText"></div>
+
+  <div class="steps">
+    <h2>Como instalar:</h2>
+    <ul>
+      <li data-n="1">Aponte a câmera do celular pro QR Code acima</li>
+      <li data-n="2">Toque no link que aparecer (abre no navegador)</li>
+      <li data-n="3">Toque em <strong>"Instalar EletroCharge no celular"</strong> na tela de login</li>
+      <li data-n="4">Confirme — o ícone aparece na tela inicial</li>
+    </ul>
+  </div>
+
+  <p class="aviso">
+    O celular precisa estar na mesma rede Wi-Fi deste computador para conseguir abrir o link.
+  </p>
+
+  <script>
+    const url = window.location.origin + "/";
+    document.getElementById("qrImg").src = "/api/config/qrcode?url=" + encodeURIComponent(url);
+    document.getElementById("urlText").textContent = url;
+  </script>
+</body>
+</html>

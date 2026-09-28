@@ -1,0 +1,15 @@
+fastapi>=0.111
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+bcrypt>=4.1
+python-jose[cryptography]>=3.3
+python-multipart>=0.0.9
+mercadopago>=2.2
+requests>=2.31
+python-dotenv>=1.0
+pydantic[email]>=2.6
+
+# Pillow: usado pelo endpoint /api/config/qrcode (produção) e por scripts/gerar_icones.py (dev).
+pillow>=10.0
+qrcode[pil]>=7.4

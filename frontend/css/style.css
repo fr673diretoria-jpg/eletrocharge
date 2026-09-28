@@ -1,0 +1,515 @@
+* { box-sizing: border-box; }
+
+:root {
+    --verde: #168a55;
+    --verde-escuro: #0e6b41;
+    --laranja: #d48718;
+    --cinza: #6b7680;
+    --fundo: #f2f5f7;
+    --texto: #172027;
+    --texto-suave: #65727a;
+    --borda: #d8e0e4;
+    --raio: 16px;
+    --sombra: 0 4px 16px rgba(23, 32, 39, 0.08);
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--fundo);
+    color: var(--texto);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.oculto { display: none !important; }
+
+button, input, select {
+    font-family: inherit;
+    font-size: 16px;
+}
+
+/* ---------- Autenticação ---------- */
+.tela-auth {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(160deg, var(--verde-escuro), var(--verde) 55%, #1fa868);
+}
+
+.cartao-auth {
+    width: 100%;
+    max-width: 380px;
+    background: white;
+    border-radius: 20px;
+    padding: 28px 24px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+}
+
+.marca-auth {
+    font-size: 26px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.sub-auth {
+    text-align: center;
+    color: var(--texto-suave);
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.link-instalar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--verde-escuro);
+    font-weight: 600;
+    font-size: 13px;
+    background: #e9f6ef;
+    border: 1px solid #cdeadb;
+    border-radius: 999px;
+    padding: 9px 16px;
+    margin: 16px auto 0;
+    width: fit-content;
+    animation: pulso-instalar 2s ease-out infinite;
+}
+
+.link-instalar img {
+    display: block;
+    border-radius: 6px;
+}
+
+@keyframes pulso-instalar {
+    0% { box-shadow: 0 0 0 0 rgba(22, 138, 85, 0.45); }
+    70% { box-shadow: 0 0 0 14px rgba(22, 138, 85, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(22, 138, 85, 0); }
+}
+
+.link-qrcode {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: var(--texto-suave);
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.abas-auth {
+    display: flex;
+    background: var(--fundo);
+    border-radius: 12px;
+    padding: 4px;
+    margin: 20px 0 6px;
+}
+
+.aba {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--texto-suave);
+}
+
+.aba.ativa {
+    background: white;
+    color: var(--verde-escuro);
+    box-shadow: var(--sombra);
+}
+
+.form-auth {
+    display: flex;
+    flex-direction: column;
+    margin-top: 14px;
+}
+
+.form-auth label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--texto-suave);
+    margin-bottom: 6px;
+}
+
+.form-auth input, #painel-pagamento input, #painel-pagamento select {
+    padding: 13px 14px;
+    border: 1px solid #ccd5da;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.erro-auth {
+    color: #b3261e;
+    background: #fdecea;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-top: 14px;
+    text-align: center;
+}
+
+/* ---------- Botões ---------- */
+.botao {
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    padding: 13px 16px;
+    cursor: pointer;
+    background: white;
+    font-weight: 600;
+    color: var(--texto);
+}
+
+.botao.primario {
+    background: var(--verde);
+    border-color: var(--verde);
+    color: white;
+}
+
+.botao.perigo {
+    background: white;
+    border-color: #f0c9c5;
+    color: #b3261e;
+}
+
+.botao.largo { width: 100%; }
+
+.botao-icone {
+    border: 1px solid var(--borda);
+    background: white;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* ---------- App shell ---------- */
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+}
+
+.topo {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: white;
+    border-bottom: 1px solid var(--borda);
+    padding-top: calc(14px + env(safe-area-inset-top));
+}
+
+.marca {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.topo-acoes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.conteudo {
+    flex: 1;
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.tab { display: none; }
+.tab.ativa { display: block; }
+
+.titulo-secao {
+    margin: 4px 0 16px;
+}
+
+.subtitulo-secao {
+    margin: 22px 0 10px;
+    font-size: 15px;
+}
+
+.grid-resumo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.resumo-item {
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    padding: 14px;
+}
+
+.resumo-item .valor {
+    font-size: 20px;
+    font-weight: 800;
+    display: block;
+    margin-top: 4px;
+}
+
+.resumo-item .rotulo {
+    font-size: 12px;
+    color: var(--texto-suave);
+}
+
+/* ---------- Filtros ---------- */
+.filtros {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 14px;
+}
+
+.filtro {
+    border: 1px solid var(--borda);
+    background: white;
+    border-radius: 999px;
+    padding: 9px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--texto);
+}
+
+.filtro.ativo {
+    background: var(--verde);
+    border-color: var(--verde);
+    color: white;
+}
+
+/* ---------- Mapa ---------- */
+.mapa {
+    height: 260px;
+    border-radius: var(--raio);
+    border: 1px solid var(--borda);
+    background: #dfe6e3;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.aviso {
+    background: #fff6e0;
+    border: 1px solid #f0dca6;
+    color: #7a5b06;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+#banner-instalar-ios {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    max-width: 700px;
+    margin: 12px auto 0;
+    margin-inline: 16px;
+}
+
+@media (min-width: 732px) {
+    #banner-instalar-ios { margin-inline: auto; }
+}
+
+/* ---------- Lista de estações ---------- */
+.lista {
+    display: grid;
+    gap: 12px;
+}
+
+.card {
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    padding: 16px;
+    transition: box-shadow .2s;
+}
+
+.card.destacado {
+    box-shadow: 0 0 0 2px var(--verde);
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.card-info {
+    color: var(--texto-suave);
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.card-preco {
+    font-size: 18px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.card-acoes {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.badge.livre { color: var(--verde-escuro); }
+.badge.ocupado { color: var(--laranja); }
+.badge.offline { color: var(--cinza); }
+
+/* ---------- Histórico ---------- */
+.item-historico {
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-pill {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-pill.aprovado { background: #e2f5ea; color: var(--verde-escuro); }
+.status-pill.pendente { background: #fff6e0; color: #7a5b06; }
+.status-pill.recusado, .status-pill.cancelado { background: #fdecea; color: #b3261e; }
+
+/* ---------- Perfil ---------- */
+.cartao-perfil {
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    padding: 18px;
+    margin-bottom: 16px;
+}
+
+.cartao-perfil p {
+    margin: 6px 0;
+}
+
+/* ---------- Painel de pagamento (modal inferior) ---------- */
+.painel {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 15, 20, 0.5);
+    z-index: 40;
+    display: flex;
+    align-items: flex-end;
+}
+
+.painel-conteudo {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+    max-height: 88vh;
+    overflow-y: auto;
+}
+
+.painel-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.painel-topo h2 { margin: 0; }
+
+.sub-painel {
+    color: var(--texto-suave);
+    margin: 10px 0 16px;
+}
+
+.nota-pagamento {
+    font-size: 12px;
+    color: var(--texto-suave);
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* ---------- Navegação inferior ---------- */
+.nav-inferior {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    background: white;
+    border-top: 1px solid var(--borda);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-item {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 0 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 12px;
+    color: var(--texto-suave);
+    cursor: pointer;
+}
+
+.nav-item.ativo { color: var(--verde-escuro); font-weight: 700; }
+.nav-icone { font-size: 20px; }
+
+/* ---------- Toast ---------- */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(86px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    background: #172027;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    z-index: 50;
+    max-width: 90vw;
+    text-align: center;
+}
+
+@media (max-width: 420px) {
+    .card-top { flex-direction: column; }
+    .mapa { height: 220px; }
+}

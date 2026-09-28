@@ -1,0 +1,16 @@
+# Segredos e configuração local
+.env
+
+# Banco de dados local (SQLite)
+*.db
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor
+.vscode/
