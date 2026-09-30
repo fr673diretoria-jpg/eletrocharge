@@ -294,8 +294,8 @@ button, input, select {
 /* ---------- Filtros ---------- */
 .filtros {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    overflow-x: auto;
     padding-bottom: 4px;
     margin-bottom: 14px;
 }
@@ -534,4 +534,6 @@ button, input, select {
 @media (max-width: 420px) {
     .card-top { flex-direction: column; }
     .mapa { height: 220px; }
+    .filtros { gap: 6px; }
+    .filtro { padding: 7px 11px; font-size: 13px; }
 }
