@@ -428,6 +428,8 @@ button, input, select {
 .status-pill.aprovado { background: #e2f5ea; color: var(--verde-escuro); }
 .status-pill.pendente { background: #fff6e0; color: #7a5b06; }
 .status-pill.recusado, .status-pill.cancelado { background: #fdecea; color: #b3261e; }
+.status-pill.expirado { background: #f1eef7; color: #5b3aa1; }
+.status-pill.reembolsado { background: #e3f0fb; color: #145a9e; }
 
 /* ---------- Perfil ---------- */
 .cartao-perfil {
