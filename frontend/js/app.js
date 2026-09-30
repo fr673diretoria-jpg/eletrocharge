@@ -345,6 +345,19 @@ function iconeMarcador(cor) {
     };
 }
 
+function iconeUsuario() {
+    const svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34">' +
+        '<circle cx="17" cy="17" r="15" fill="#1a73e8" stroke="white" stroke-width="3"/>' +
+        '<circle cx="17" cy="13" r="4.5" fill="white"/>' +
+        '<path d="M8 26c0-6 4.5-9.5 9-9.5s9 3.5 9 9.5" fill="white"/>' +
+        "</svg>";
+    return {
+        url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+        scaledSize: new google.maps.Size(34, 34),
+    };
+}
+
 function atualizarMarcadorUsuario() {
     if (!mapa || !localizacaoUsuario) return;
 
@@ -355,16 +368,8 @@ function atualizarMarcadorUsuario() {
         position: localizacaoUsuario,
         map: mapa,
         title: "Você está aqui",
-        icon: {
-            url:
-                "data:image/svg+xml;charset=UTF-8," +
-                encodeURIComponent(
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22">' +
-                    '<circle cx="11" cy="11" r="8" fill="#1a73e8" stroke="white" stroke-width="3"/>' +
-                    "</svg>"
-                ),
-            scaledSize: new google.maps.Size(22, 22),
-        },
+        zIndex: google.maps.Marker.MAX_ZINDEX + 1,
+        icon: iconeUsuario(),
     });
 }
 
