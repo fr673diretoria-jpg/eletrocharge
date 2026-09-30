@@ -434,6 +434,7 @@ function renderizarLista() {
                 <span class="badge ${e.status}">
                     ${e.status === "livre" ? rotulos.livre + " (" + e.vagas_livres + ")" : rotulos[e.status]}
                 </span>
+                <button class="botao" onclick="navegarAteEstacao(${e.latitude}, ${e.longitude})">🧭 Navegar</button>
                 ${e.vagas_livres > 0
                     ? `<button class="botao primario" onclick="reservar(${e.id})">Reservar / carregar</button>`
                     : ""}
@@ -442,6 +443,15 @@ function renderizarLista() {
     `
         )
         .join("") || `<p class="aviso">Nenhuma estação encontrada para este filtro.</p>`;
+}
+
+function navegarAteEstacao(lat, lng) {
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, "_blank");
+}
+
+function navegarEstacaoSelecionada() {
+    if (!selecionada) return;
+    navegarAteEstacao(selecionada.latitude, selecionada.longitude);
 }
 
 // ================= Pagamento =================
