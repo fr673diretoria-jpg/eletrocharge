@@ -54,3 +54,8 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_FROM = os.getenv("SMTP_FROM", "EletroCharge <nao-responda@eletrocharge.com>")
+
+# Resend (https://resend.com) - envia e-mail via API HTTPS. Preferido em produção porque
+# provedores de hospedagem (ex.: Render) costumam bloquear conexões SMTP de saída.
+# Se definido, tem prioridade sobre SMTP_HOST acima.
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
