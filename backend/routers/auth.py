@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from .. import models, schemas, security
+from .. import config, models, schemas, security
 from ..database import get_db
+from ..email_utils import enviar_email
 
 router = APIRouter(prefix="/api/auth", tags=["autenticação"])
 
@@ -45,3 +46,37 @@ def me(
     db: Session = Depends(get_db),
 ):
     return security.sincronizar_admin(usuario, db)
+
+
+@router.post("/esqueci-senha")
+def esqueci_senha(dados: schemas.EsqueciSenha, db: Session = Depends(get_db)):
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == dados.email).first()
+
+    # Resposta genérica sempre, exista ou não o e-mail: evita revelar quais e-mails têm conta.
+    if usuario:
+        token = security.criar_token_reset_senha(usuario.id)
+        link = f"{config.APP_BASE_URL}/?redefinir_senha={token}"
+        corpo = (
+            f"Olá, {usuario.nome}!\n\n"
+            "Recebemos uma solicitação para redefinir a senha da sua conta EletroCharge.\n"
+            f"Clique no link abaixo para escolher uma nova senha (válido por {config.RESET_SENHA_EXPIRA_MINUTOS} minutos):\n\n"
+            f"{link}\n\n"
+            "Se você não solicitou isso, apenas ignore este e-mail."
+        )
+        enviar_email(usuario.email, "Redefinição de senha - EletroCharge", corpo)
+
+    return {"mensagem": "Se o e-mail existir, enviaremos um link de redefinição de senha."}
+
+
+@router.post("/redefinir-senha")
+def redefinir_senha(dados: schemas.RedefinirSenha, db: Session = Depends(get_db)):
+    usuario_id = security.validar_token_reset_senha(dados.token)
+
+    usuario = db.query(models.Usuario).filter(models.Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Link inválido ou expirado")
+
+    usuario.senha_hash = security.hash_senha(dados.nova_senha)
+    db.commit()
+
+    return {"mensagem": "Senha redefinida com sucesso. Você já pode entrar com a nova senha."}

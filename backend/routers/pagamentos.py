@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from .. import config, mp_oauth, models, ocpp_server, schemas, security
-from ..carregamento import liberar_vaga
+from ..carregamento import expirar_reservas_ocpp, liberar_vaga
 from ..database import get_db
 from ..geo import calcular_distancia_km
 
@@ -27,11 +27,22 @@ def criar_pagamento(
     usuario: models.Usuario = Depends(security.obter_usuario_atual),
     db: Session = Depends(get_db),
 ):
+    expirar_reservas_ocpp(db)
     estacao = db.query(models.Estacao).filter(models.Estacao.id == dados.estacao_id).first()
     if not estacao:
         raise HTTPException(status_code=404, detail="Estação não encontrada")
     if estacao.vagas_livres <= 0:
         raise HTTPException(status_code=400, detail="Não há carregador disponível nesta estação")
+
+    distancia_m = calcular_distancia_km(dados.lat, dados.lng, estacao.latitude, estacao.longitude) * 1000
+    if distancia_m > config.DISTANCIA_MAXIMA_PAGAMENTO_METROS:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Você precisa estar próximo da estação para reservar/carregar "
+                f"(até {int(config.DISTANCIA_MAXIMA_PAGAMENTO_METROS)} m)."
+            ),
+        )
 
     parceiro = estacao.parceiro
     token_cobranca = config.MP_ACCESS_TOKEN
@@ -109,6 +120,7 @@ def meus_pagamentos(
     usuario: models.Usuario = Depends(security.obter_usuario_atual),
     db: Session = Depends(get_db),
 ):
+    expirar_reservas_ocpp(db)
     return (
         db.query(models.Pagamento)
         .filter(models.Pagamento.usuario_id == usuario.id)

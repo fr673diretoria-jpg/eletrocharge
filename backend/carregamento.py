@@ -1,7 +1,9 @@
 """Lógica de vagas/status compartilhada entre a liberação por GPS e o servidor OCPP."""
+from datetime import datetime, timedelta
+
 from sqlalchemy.orm import Session
 
-from . import models
+from . import config, models
 
 STATUS_LIVRE = {"Available"}
 STATUS_INDISPONIVEL = {"Unavailable", "Faulted"}
@@ -30,3 +32,28 @@ def recalcular_estacao_por_conectores(estacao: models.Estacao, db: Session) -> N
         estacao.status = "offline"
     else:
         estacao.status = "ocupado"
+
+
+def expirar_reservas_ocpp(db: Session) -> int:
+    limite = datetime.utcnow() - timedelta(minutes=config.RESERVA_EXPIRA_MINUTOS)
+    pagamentos = (
+        db.query(models.Pagamento)
+        .join(models.Estacao)
+        .filter(
+            models.Pagamento.status == "aprovado",
+            models.Pagamento.ocpp_transaction_id.is_(None),
+            models.Pagamento.atualizado_em < limite,
+            models.Estacao.ocpp_identity.isnot(None),
+        )
+        .all()
+    )
+
+    for pagamento in pagamentos:
+        pagamento.status = "expirado"
+        if pagamento.estacao:
+            liberar_vaga(pagamento.estacao)
+
+    if pagamentos:
+        db.commit()
+
+    return len(pagamentos)

@@ -158,6 +158,26 @@ button, input, select {
     text-align: center;
 }
 
+.sucesso-auth {
+    color: var(--verde-escuro);
+    background: #e9f6ef;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-top: 14px;
+    text-align: center;
+}
+
+.link-esqueci-senha {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: var(--texto-suave);
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
 /* ---------- Botões ---------- */
 .botao {
     border: 1px solid var(--borda);

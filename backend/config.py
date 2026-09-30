@@ -32,8 +32,25 @@ ADMIN_EMAILS = [
 # para o app liberar a vaga automaticamente via GPS.
 DISTANCIA_LIBERACAO_VAGA_METROS = float(os.getenv("DISTANCIA_LIBERACAO_VAGA_METROS", "300"))
 
+# Distância máxima (em metros) para permitir reservar/pagar por uma estação.
+DISTANCIA_MAXIMA_PAGAMENTO_METROS = float(os.getenv("DISTANCIA_MAXIMA_PAGAMENTO_METROS", "200"))
+
+# Tempo máximo (em minutos) para uma estação OCPP iniciar a transação após o pagamento aprovado.
+RESERVA_EXPIRA_MINUTOS = int(os.getenv("RESERVA_EXPIRA_MINUTOS", "15"))
+
 # Google Maps JavaScript API - chave restrita por referrer no Google Cloud Console.
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 
 # URL pública da aplicação (usada nos back_urls e no webhook do Mercado Pago).
 APP_BASE_URL = os.getenv("APP_BASE_URL", "http://127.0.0.1:8000")
+
+# Tempo de validade (em minutos) do link de redefinição de senha enviado por e-mail.
+RESET_SENHA_EXPIRA_MINUTOS = int(os.getenv("RESET_SENHA_EXPIRA_MINUTOS", "30"))
+
+# SMTP usado para enviar o e-mail de "esqueci minha senha". Se SMTP_HOST não for definido,
+# o link é apenas registrado no log do servidor (útil em desenvolvimento local).
+SMTP_HOST = os.getenv("SMTP_HOST", "")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER = os.getenv("SMTP_USER", "")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_FROM = os.getenv("SMTP_FROM", "EletroCharge <nao-responda@eletrocharge.com>")

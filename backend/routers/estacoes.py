@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
+from ..carregamento import expirar_reservas_ocpp
 from ..database import get_db
 from ..geo import calcular_distancia_km
 
@@ -17,6 +18,7 @@ def listar_estacoes(
     lng: Optional[float] = None,
     db: Session = Depends(get_db),
 ):
+    expirar_reservas_ocpp(db)
     query = db.query(models.Estacao)
 
     if filtro == "livre":

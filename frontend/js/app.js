@@ -33,18 +33,57 @@ async function api(caminho, opcoes = {}) {
     const dados = await resposta.json().catch(() => ({}));
 
     if (!resposta.ok) {
-        throw new Error(dados.detail || "Ocorreu um erro na requisição");
+        const erro = new Error(dados.detail || "Ocorreu um erro na requisição");
+        erro.status = resposta.status;
+        throw erro;
     }
     return dados;
 }
 
+function tratarSessaoExpirada(erro) {
+    if (erro.status !== 401) return false;
+
+    encerrarSessao();
+    const erroEl = document.getElementById("erro-auth");
+    erroEl.textContent = "Sua sessão expirou. Entre novamente.";
+    erroEl.classList.remove("oculto");
+    return true;
+}
+
 // ================= Autenticação =================
+let tokenRedefinirSenha = null;
+
 function mudarAbaAuth(aba) {
     document.getElementById("aba-login").classList.toggle("ativa", aba === "login");
     document.getElementById("aba-cadastro").classList.toggle("ativa", aba === "cadastro");
     document.getElementById("form-login").classList.toggle("oculto", aba !== "login");
     document.getElementById("form-cadastro").classList.toggle("oculto", aba !== "cadastro");
+    document.getElementById("form-esqueci-senha").classList.add("oculto");
+    document.getElementById("form-redefinir-senha").classList.add("oculto");
+    document.getElementById("link-esqueci-senha").classList.remove("oculto");
     document.getElementById("erro-auth").classList.add("oculto");
+    document.getElementById("sucesso-auth").classList.add("oculto");
+}
+
+function mostrarEsqueciSenha() {
+    document.querySelectorAll(".abas-auth .aba").forEach((b) => b.classList.remove("ativa"));
+    document.getElementById("form-login").classList.add("oculto");
+    document.getElementById("form-cadastro").classList.add("oculto");
+    document.getElementById("form-redefinir-senha").classList.add("oculto");
+    document.getElementById("link-esqueci-senha").classList.add("oculto");
+    document.getElementById("form-esqueci-senha").classList.remove("oculto");
+    document.getElementById("erro-auth").classList.add("oculto");
+    document.getElementById("sucesso-auth").classList.add("oculto");
+}
+
+function mostrarRedefinirSenha(token) {
+    tokenRedefinirSenha = token;
+    document.querySelectorAll(".abas-auth .aba").forEach((b) => b.classList.remove("ativa"));
+    document.getElementById("form-login").classList.add("oculto");
+    document.getElementById("form-cadastro").classList.add("oculto");
+    document.getElementById("form-esqueci-senha").classList.add("oculto");
+    document.getElementById("link-esqueci-senha").classList.add("oculto");
+    document.getElementById("form-redefinir-senha").classList.remove("oculto");
 }
 
 function salvarSessao(dados) {
@@ -73,6 +112,7 @@ async function iniciarApp() {
         usuarioAtual = await api("/api/auth/me");
         localStorage.setItem("ec_usuario", JSON.stringify(usuarioAtual));
     } catch (e) {
+        if (tratarSessaoExpirada(e)) return;
         console.error(e);
     }
     document.getElementById("nav-admin").classList.toggle("oculto", !usuarioAtual?.is_admin);
@@ -147,6 +187,66 @@ document.getElementById("form-cadastro").addEventListener("submit", async (event
 });
 
 document.getElementById("btn-sair").addEventListener("click", encerrarSessao);
+
+document.getElementById("link-esqueci-senha").addEventListener("click", (evento) => {
+    evento.preventDefault();
+    mostrarEsqueciSenha();
+});
+
+document.getElementById("link-voltar-login").addEventListener("click", (evento) => {
+    evento.preventDefault();
+    mudarAbaAuth("login");
+});
+
+document.getElementById("form-esqueci-senha").addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    const erroEl = document.getElementById("erro-auth");
+    const sucessoEl = document.getElementById("sucesso-auth");
+    erroEl.classList.add("oculto");
+    sucessoEl.classList.add("oculto");
+
+    try {
+        const resposta = await api("/api/auth/esqueci-senha", {
+            method: "POST",
+            body: JSON.stringify({ email: document.getElementById("esqueci-email").value }),
+        });
+        sucessoEl.textContent = resposta.mensagem;
+        sucessoEl.classList.remove("oculto");
+    } catch (e) {
+        erroEl.textContent = e.message;
+        erroEl.classList.remove("oculto");
+    }
+});
+
+document.getElementById("form-redefinir-senha").addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    const erroEl = document.getElementById("erro-auth");
+    erroEl.classList.add("oculto");
+
+    try {
+        const resposta = await api("/api/auth/redefinir-senha", {
+            method: "POST",
+            body: JSON.stringify({
+                token: tokenRedefinirSenha,
+                nova_senha: document.getElementById("redefinir-senha").value,
+            }),
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
+        mudarAbaAuth("login");
+        const sucessoEl = document.getElementById("sucesso-auth");
+        sucessoEl.textContent = resposta.mensagem;
+        sucessoEl.classList.remove("oculto");
+    } catch (e) {
+        erroEl.textContent = e.message;
+        erroEl.classList.remove("oculto");
+    }
+});
+
+{
+    const parametrosAuth = new URLSearchParams(window.location.search);
+    const tokenUrl = parametrosAuth.get("redefinir_senha");
+    if (tokenUrl) mostrarRedefinirSenha(tokenUrl);
+}
 
 // ================= Navegação por abas =================
 document.querySelectorAll(".nav-item").forEach((botao) => {
@@ -373,13 +473,27 @@ async function confirmarPagamento() {
     const botao = document.getElementById("btn-confirmar-pagamento");
 
     resultadoEl.classList.add("oculto");
+
+    if (!localizacaoUsuario) {
+        obterLocalizacao(true);
+        resultadoEl.textContent = "Ative a localização para reservar uma estação próxima.";
+        resultadoEl.classList.remove("oculto");
+        return;
+    }
+
     botao.disabled = true;
     botao.textContent = "Gerando cobrança...";
 
     try {
         const pagamento = await api("/api/pagamentos", {
             method: "POST",
-            body: JSON.stringify({ estacao_id: selecionada.id, valor, metodo }),
+            body: JSON.stringify({
+                estacao_id: selecionada.id,
+                valor,
+                metodo,
+                lat: localizacaoUsuario.lat,
+                lng: localizacaoUsuario.lng,
+            }),
         });
 
         if (pagamento.checkout_url) {
@@ -537,6 +651,7 @@ async function carregarPerfil() {
             <p><strong>Telefone:</strong> ${usuario.telefone || "não informado"}</p>
         `;
     } catch (e) {
+        if (tratarSessaoExpirada(e)) return;
         el.innerHTML = `<p class="erro-auth">${e.message}</p>`;
     }
 }
@@ -894,6 +1009,6 @@ async function carregarTransacoesAdmin() {
 // ================= Boot =================
 configurarInstalacaoApp(); // roda já na tela de login, não só depois de autenticar
 
-if (token && usuarioAtual) {
+if (token && usuarioAtual && !tokenRedefinirSenha) {
     iniciarApp();
 }

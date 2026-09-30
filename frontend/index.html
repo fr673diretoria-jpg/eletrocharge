@@ -39,6 +39,22 @@
             <input type="password" id="login-senha" required autocomplete="current-password">
             <button type="submit" class="botao primario largo">Entrar</button>
         </form>
+        <a href="#" id="link-esqueci-senha" class="link-esqueci-senha">Esqueci minha senha</a>
+
+        <form id="form-esqueci-senha" class="form-auth oculto">
+            <p class="sub-auth">Informe seu e-mail para receber o link de redefinição de senha.</p>
+            <label>E-mail</label>
+            <input type="email" id="esqueci-email" required autocomplete="email">
+            <button type="submit" class="botao primario largo">Enviar link</button>
+            <a href="#" id="link-voltar-login" class="link-esqueci-senha">Voltar para o login</a>
+        </form>
+
+        <form id="form-redefinir-senha" class="form-auth oculto">
+            <p class="sub-auth">Escolha sua nova senha.</p>
+            <label>Nova senha (mín. 6 caracteres)</label>
+            <input type="password" id="redefinir-senha" required minlength="6" autocomplete="new-password">
+            <button type="submit" class="botao primario largo">Redefinir senha</button>
+        </form>
 
         <form id="form-cadastro" class="form-auth oculto">
             <label>Nome completo</label>
@@ -53,6 +69,7 @@
         </form>
 
         <p id="erro-auth" class="erro-auth oculto"></p>
+        <p id="sucesso-auth" class="sucesso-auth oculto"></p>
     </div>
 </div>
 

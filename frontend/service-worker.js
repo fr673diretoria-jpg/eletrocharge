@@ -1,4 +1,4 @@
-const CACHE_NOME = "eletrocharge-v3";
+const CACHE_NOME = "eletrocharge-v5";
 const ARQUIVOS_APP_SHELL = [
     "/",
     "/css/style.css",

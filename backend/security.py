@@ -28,6 +28,26 @@ def criar_token(dados: dict) -> str:
     return jwt.encode(payload, config.SECRET_KEY, algorithm=config.ALGORITHM)
 
 
+def criar_token_reset_senha(usuario_id: int) -> str:
+    expira = datetime.utcnow() + timedelta(minutes=config.RESET_SENHA_EXPIRA_MINUTOS)
+    payload = {"sub": str(usuario_id), "finalidade": "reset_senha", "exp": expira}
+    return jwt.encode(payload, config.SECRET_KEY, algorithm=config.ALGORITHM)
+
+
+def validar_token_reset_senha(token: str) -> int:
+    """Retorna o id do usuário se o token for válido, ou levanta HTTPException 400."""
+    erro = HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Link inválido ou expirado")
+    try:
+        payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+    except JWTError:
+        raise erro
+
+    if payload.get("finalidade") != "reset_senha" or payload.get("sub") is None:
+        raise erro
+
+    return int(payload["sub"])
+
+
 def obter_usuario_atual(
     token: Optional[str] = Depends(oauth2_scheme),
     db: Session = Depends(get_db),

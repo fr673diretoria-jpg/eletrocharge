@@ -33,6 +33,15 @@ class Token(BaseModel):
     usuario: UsuarioOut
 
 
+class EsqueciSenha(BaseModel):
+    email: EmailStr
+
+
+class RedefinirSenha(BaseModel):
+    token: str
+    nova_senha: str = Field(min_length=6)
+
+
 class EstacaoCreate(BaseModel):
     nome: str = Field(min_length=2)
     endereco: str = Field(min_length=3)
@@ -87,6 +96,8 @@ class PagamentoCreate(BaseModel):
     estacao_id: int
     valor: float = Field(gt=0)
     metodo: str = "pix"  # pix, cartao, boleto (a escolha final ocorre no checkout)
+    lat: float
+    lng: float
 
 
 class FinalizarCarregamento(BaseModel):
