@@ -34,7 +34,9 @@ def recalcular_estacao_por_conectores(estacao: models.Estacao, db: Session) -> N
         estacao.status = "ocupado"
 
 
-def expirar_reservas_ocpp(db: Session) -> int:
+async def expirar_reservas_ocpp(db: Session) -> int:
+    from . import ocpp_server  # import tardio: evita import circular (ocpp_server importa deste módulo)
+
     limite = datetime.utcnow() - timedelta(minutes=config.RESERVA_EXPIRA_MINUTOS)
     pagamentos = (
         db.query(models.Pagamento)
@@ -52,6 +54,10 @@ def expirar_reservas_ocpp(db: Session) -> int:
         pagamento.status = "expirado"
         if pagamento.estacao:
             liberar_vaga(pagamento.estacao)
+            if pagamento.estacao.ocpp_identity:
+                # Libera a reserva no carregador antes do previsto, para o conector voltar
+                # a aceitar outros veículos imediatamente (não precisa esperar o expiryDate).
+                await ocpp_server.cancelar_reserva(pagamento.estacao.ocpp_identity, pagamento.id)
 
     if pagamentos:
         db.commit()

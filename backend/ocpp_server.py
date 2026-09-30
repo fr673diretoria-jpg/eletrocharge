@@ -7,7 +7,7 @@ o carregamento termina de verdade (StopTransaction), em vez de depender só do G
 """
 import itertools
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
@@ -42,10 +42,42 @@ async def enviar_comando(identidade: str, acao: str, payload: dict) -> bool:
     return True
 
 
-async def iniciar_carregamento_remoto(identidade: str, id_tag: str) -> bool:
+async def iniciar_carregamento_remoto(identidade: str, id_tag: str, connector_id: int | None = None) -> bool:
     """Chamado quando um pagamento é aprovado: pede ao carregador para iniciar a sessão
     já vinculada ao idTag desse pagamento, sem precisar de cartão/RFID físico."""
-    return await enviar_comando(identidade, "RemoteStartTransaction", {"idTag": id_tag})
+    payload = {"idTag": id_tag}
+    if connector_id:
+        payload["connectorId"] = connector_id
+    return await enviar_comando(identidade, "RemoteStartTransaction", payload)
+
+
+async def reservar_conector(identidade: str, connector_id: int, id_tag: str, reservation_id: int, expira_minutos: int) -> bool:
+    """Reserva com exclusividade um conector físico para este idTag até o pagamento expirar:
+    impede que outro veículo inicie uma sessão nesse conector enquanto a reserva estiver ativa
+    (fecha a brecha de alguém 'roubar' a sessão paga por você antes de você chegar)."""
+    expira_em = datetime.now(timezone.utc) + timedelta(minutes=expira_minutos)
+    return await enviar_comando(identidade, "ReserveNow", {
+        "connectorId": connector_id,
+        "expiryDate": expira_em.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "idTag": id_tag,
+        "reservationId": reservation_id,
+    })
+
+
+async def cancelar_reserva(identidade: str, reservation_id: int) -> bool:
+    """Libera a reserva no carregador antes do previsto (ex.: quando o pagamento expira no backend)."""
+    return await enviar_comando(identidade, "CancelReservation", {"reservationId": reservation_id})
+
+
+def escolher_conector_livre(estacao: models.Estacao, db: Session) -> int | None:
+    """Escolhe um conector físico com status 'Available' para reservar com exclusividade."""
+    conector = (
+        db.query(models.Conector)
+        .filter(models.Conector.estacao_id == estacao.id, models.Conector.status == "Available")
+        .order_by(models.Conector.connector_id)
+        .first()
+    )
+    return conector.connector_id if conector else None
 
 
 @router.websocket("/ocpp/{identidade}")

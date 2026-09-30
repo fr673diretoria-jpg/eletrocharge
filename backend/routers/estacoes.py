@@ -12,13 +12,13 @@ router = APIRouter(prefix="/api/estacoes", tags=["estações"])
 
 
 @router.get("", response_model=List[schemas.EstacaoOut])
-def listar_estacoes(
+async def listar_estacoes(
     filtro: str = Query("todos", enum=["todos", "livre", "rapido", "ccs"]),
     lat: Optional[float] = None,
     lng: Optional[float] = None,
     db: Session = Depends(get_db),
 ):
-    expirar_reservas_ocpp(db)
+    await expirar_reservas_ocpp(db)
     query = db.query(models.Estacao)
 
     if filtro == "livre":

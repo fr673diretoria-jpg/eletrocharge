@@ -22,12 +22,12 @@ def _sdk(token: str) -> mercadopago.SDK:
 
 
 @router.post("", response_model=schemas.PagamentoOut, status_code=201)
-def criar_pagamento(
+async def criar_pagamento(
     dados: schemas.PagamentoCreate,
     usuario: models.Usuario = Depends(security.obter_usuario_atual),
     db: Session = Depends(get_db),
 ):
-    expirar_reservas_ocpp(db)
+    await expirar_reservas_ocpp(db)
     estacao = db.query(models.Estacao).filter(models.Estacao.id == dados.estacao_id).first()
     if not estacao:
         raise HTTPException(status_code=404, detail="Estação não encontrada")
@@ -116,11 +116,11 @@ def criar_pagamento(
 
 
 @router.get("/meus", response_model=list[schemas.PagamentoOut])
-def meus_pagamentos(
+async def meus_pagamentos(
     usuario: models.Usuario = Depends(security.obter_usuario_atual),
     db: Session = Depends(get_db),
 ):
-    expirar_reservas_ocpp(db)
+    await expirar_reservas_ocpp(db)
     return (
         db.query(models.Pagamento)
         .filter(models.Pagamento.usuario_id == usuario.id)
@@ -265,6 +265,13 @@ async def webhook(request: Request, db: Session = Depends(get_db)):
     # Dispara o início remoto no carregador real via OCPP, só na primeira vez que aprovar
     # (webhooks podem chegar duplicados) e só se a estação tiver um carregador conectado.
     if pagamento.status == "aprovado" and not ja_estava_aprovado and estacao and estacao.ocpp_identity:
-        await ocpp_server.iniciar_carregamento_remoto(estacao.ocpp_identity, pagamento.ocpp_id_tag)
+        conector_id = ocpp_server.escolher_conector_livre(estacao, db)
+        if conector_id:
+            # Reserva o conector com exclusividade para este idTag: nenhum outro veículo
+            # consegue começar a carregar nele até você chegar (ou a reserva expirar).
+            await ocpp_server.reservar_conector(
+                estacao.ocpp_identity, conector_id, pagamento.ocpp_id_tag, pagamento.id, config.RESERVA_EXPIRA_MINUTOS
+            )
+        await ocpp_server.iniciar_carregamento_remoto(estacao.ocpp_identity, pagamento.ocpp_id_tag, conector_id)
 
     return {"recebido": True}
