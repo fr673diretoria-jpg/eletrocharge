@@ -15,6 +15,8 @@ def obter_config():
     return {
         "googleMapsApiKey": config.GOOGLE_MAPS_API_KEY,
         "pagamentosAtivos": bool(config.MP_ACCESS_TOKEN),
+        "reservaExpiraMinutos": config.RESERVA_EXPIRA_MINUTOS,
+        "velocidadeMediaKmh": config.VELOCIDADE_MEDIA_KMH,
     }
 
 

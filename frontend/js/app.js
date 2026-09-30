@@ -7,6 +7,8 @@ let selecionada = null;
 let filtroAtual = "todos";
 let localizacaoUsuario = null; // { lat, lng }
 let pagamentosAtivos = true;
+let reservaExpiraMinutos = 15;
+let velocidadeMediaKmh = 35;
 
 let mapa = null;
 let marcadores = [];
@@ -120,6 +122,8 @@ async function iniciarApp() {
     try {
         const config = await api("/api/config");
         pagamentosAtivos = config.pagamentosAtivos;
+        reservaExpiraMinutos = config.reservaExpiraMinutos ?? reservaExpiraMinutos;
+        velocidadeMediaKmh = config.velocidadeMediaKmh ?? velocidadeMediaKmh;
 
         if (config.googleMapsApiKey) {
             await carregarGoogleMaps(config.googleMapsApiKey);
@@ -467,7 +471,28 @@ function reservar(id) {
     document.getElementById("estacao-pagamento").textContent =
         selecionada.nome + " — " + dinheiro(selecionada.preco_kwh) + "/kWh";
     document.getElementById("resultado-pagamento").classList.add("oculto");
+    atualizarAvisoTempoReserva();
     document.getElementById("painel-pagamento").classList.remove("oculto");
+}
+
+function atualizarAvisoTempoReserva() {
+    const avisoEl = document.getElementById("aviso-tempo-reserva");
+    if (!selecionada || selecionada.distancia_km == null || !velocidadeMediaKmh) {
+        avisoEl.classList.add("oculto");
+        return;
+    }
+
+    const tempoEstimadoMin = Math.round((selecionada.distancia_km / velocidadeMediaKmh) * 60);
+    if (tempoEstimadoMin > reservaExpiraMinutos) {
+        const distanciaTexto = selecionada.distancia_km.toFixed(1).replace(".", ",");
+        avisoEl.textContent =
+            `⚠️ Você está a ${distanciaTexto} km (~${tempoEstimadoMin} min de chegada). ` +
+            `Sua reserva no carregador expira ${reservaExpiraMinutos} min após o pagamento aprovado — ` +
+            "ela pode expirar antes de você chegar.";
+        avisoEl.classList.remove("oculto");
+    } else {
+        avisoEl.classList.add("oculto");
+    }
 }
 
 function fecharPainelPagamento() {

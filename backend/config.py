@@ -38,6 +38,10 @@ DISTANCIA_MAXIMA_PAGAMENTO_METROS = float(os.getenv("DISTANCIA_MAXIMA_PAGAMENTO_
 # Tempo máximo (em minutos) para uma estação OCPP iniciar a transação após o pagamento aprovado.
 RESERVA_EXPIRA_MINUTOS = int(os.getenv("RESERVA_EXPIRA_MINUTOS", "15"))
 
+# Velocidade média assumida (km/h) para estimar o tempo de chegada até a estação antes do
+# pagamento, e avisar o motorista se a reserva pode expirar antes dele chegar.
+VELOCIDADE_MEDIA_KMH = float(os.getenv("VELOCIDADE_MEDIA_KMH", "35"))
+
 # Google Maps JavaScript API - chave restrita por referrer no Google Cloud Console.
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 
