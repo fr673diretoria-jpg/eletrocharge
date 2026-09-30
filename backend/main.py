@@ -18,6 +18,12 @@ Base.metadata.create_all(bind=engine)
 def _migrar_colunas_novas():
     """Adiciona colunas criadas após a primeira versão do banco (SQLite não altera tabelas existentes
     automaticamente com create_all)."""
+    if engine.dialect.name == "postgresql":
+        # Postgres suporta ADD COLUMN IF NOT EXISTS nativamente, então não precisa checar antes.
+        with engine.connect() as conexao:
+            conexao.exec_driver_sql("ALTER TABLE pagamentos ADD COLUMN IF NOT EXISTS ocpp_connector_id INTEGER")
+            conexao.commit()
+        return
     if engine.dialect.name != "sqlite":
         return
     with engine.connect() as conexao:
@@ -40,6 +46,8 @@ def _migrar_colunas_novas():
             conexao.exec_driver_sql("ALTER TABLE pagamentos ADD COLUMN ocpp_id_tag TEXT")
         if "ocpp_transaction_id" not in colunas_pagamentos:
             conexao.exec_driver_sql("ALTER TABLE pagamentos ADD COLUMN ocpp_transaction_id INTEGER")
+        if "ocpp_connector_id" not in colunas_pagamentos:
+            conexao.exec_driver_sql("ALTER TABLE pagamentos ADD COLUMN ocpp_connector_id INTEGER")
 
         conexao.commit()
 

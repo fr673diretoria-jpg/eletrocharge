@@ -113,6 +113,7 @@ class PagamentoOut(BaseModel):
     status: str
     criado_em: datetime
     checkout_url: Optional[str] = None
+    ocpp_connector_id: Optional[int] = None
 
     class Config:
         from_attributes = True

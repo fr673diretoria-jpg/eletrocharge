@@ -267,6 +267,8 @@ async def webhook(request: Request, db: Session = Depends(get_db)):
     if pagamento.status == "aprovado" and not ja_estava_aprovado and estacao and estacao.ocpp_identity:
         conector_id = ocpp_server.escolher_conector_livre(estacao, db)
         if conector_id:
+            pagamento.ocpp_connector_id = conector_id
+            db.commit()
             # Reserva o conector com exclusividade para este idTag: nenhum outro veículo
             # consegue começar a carregar nele até você chegar (ou a reserva expirar).
             await ocpp_server.reservar_conector(

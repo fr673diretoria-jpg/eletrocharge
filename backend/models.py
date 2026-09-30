@@ -93,6 +93,7 @@ class Pagamento(Base):
     mp_payment_id = Column(String, nullable=True)
     ocpp_id_tag = Column(String, nullable=True)  # identifica esta sessão perante o carregador (OCPP)
     ocpp_transaction_id = Column(Integer, nullable=True)  # transactionId devolvido pelo carregador
+    ocpp_connector_id = Column(Integer, nullable=True)  # conector físico reservado com exclusividade para esta sessão
     criado_em = Column(DateTime, default=datetime.utcnow)
     atualizado_em = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

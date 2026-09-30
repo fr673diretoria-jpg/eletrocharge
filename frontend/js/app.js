@@ -523,6 +523,7 @@ async function confirmarPagamento() {
 function verificarRetornoPagamento() {
     const parametros = new URLSearchParams(window.location.search);
     const status = parametros.get("pagamento");
+    const pagamentoId = parametros.get("pagamento_id");
     if (!status) return;
 
     const mensagens = {
@@ -533,6 +534,25 @@ function verificarRetornoPagamento() {
     mostrarToast(mensagens[status] || "Retorno de pagamento recebido.");
 
     window.history.replaceState({}, document.title, window.location.pathname);
+
+    if (status === "sucesso" && pagamentoId) {
+        mostrarConectorReservado(pagamentoId);
+    }
+}
+
+async function mostrarConectorReservado(pagamentoId, tentativas = 5) {
+    try {
+        const pagamento = await api(`/api/pagamentos/${pagamentoId}`);
+        if (pagamento.ocpp_connector_id) {
+            mostrarToast(`🔌 Use o conector nº ${pagamento.ocpp_connector_id} nesta estação.`, 6000);
+            return;
+        }
+    } catch (e) {
+        // ignora, tenta de novo abaixo
+    }
+    if (tentativas > 0) {
+        setTimeout(() => mostrarConectorReservado(pagamentoId, tentativas - 1), 2000);
+    }
 }
 
 // ================= Histórico =================
@@ -551,6 +571,7 @@ async function carregarHistorico() {
                 <div>
                     <strong>${dinheiro(p.valor)}</strong>
                     <div class="card-info">${new Date(p.criado_em).toLocaleString("pt-BR")} • ${p.metodo}</div>
+                    ${p.status === "aprovado" && p.ocpp_connector_id ? `<div class="card-info">🔌 Conector nº ${p.ocpp_connector_id}</div>` : ""}
                 </div>
                 ${p.status === "aprovado"
                     ? `<button class="botao" onclick="finalizarManualmente(${p.id})">Finalizar carregamento</button>`
