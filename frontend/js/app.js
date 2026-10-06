@@ -100,6 +100,7 @@ function encerrarSessao() {
     usuarioAtual = null;
     localStorage.removeItem("ec_token");
     localStorage.removeItem("ec_usuario");
+    pararAtualizacaoLocalizacao();
     document.getElementById("app").classList.add("oculto");
     document.getElementById("tela-auth").classList.remove("oculto");
 }
@@ -144,6 +145,7 @@ async function iniciarApp() {
     verificarRetornoPagamento();
     verificarRetornoParceiro();
     verificarCarregamentosAtivos();
+    iniciarAtualizacaoLocalizacao();
 }
 
 document.getElementById("form-login").addEventListener("submit", async (evento) => {
@@ -290,7 +292,7 @@ function obterLocalizacao(silencioso = false) {
                 lat: posicao.coords.latitude,
                 lng: posicao.coords.longitude,
             };
-            atualizarMarcadorUsuario();
+            atualizarMarcadorUsuario(true);
             carregarEstacoes();
             if (!silencioso) mostrarToast("Localização atualizada.");
         },
@@ -306,6 +308,32 @@ function obterLocalizacao(silencioso = false) {
 }
 
 document.getElementById("btn-gps").addEventListener("click", () => obterLocalizacao(false));
+
+// Mantém a localização do usuário sempre atualizada no mapa, sem recentralizar a cada leitura.
+let watchIdLocalizacao = null;
+
+function iniciarAtualizacaoLocalizacao() {
+    if (watchIdLocalizacao !== null || !navigator.geolocation) return;
+
+    watchIdLocalizacao = navigator.geolocation.watchPosition(
+        (posicao) => {
+            localizacaoUsuario = {
+                lat: posicao.coords.latitude,
+                lng: posicao.coords.longitude,
+            };
+            atualizarMarcadorUsuario(false);
+        },
+        () => {},
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
+    );
+}
+
+function pararAtualizacaoLocalizacao() {
+    if (watchIdLocalizacao !== null) {
+        navigator.geolocation.clearWatch(watchIdLocalizacao);
+        watchIdLocalizacao = null;
+    }
+}
 
 // ================= Google Maps =================
 function carregarGoogleMaps(chave) {
@@ -358,19 +386,22 @@ function iconeUsuario() {
     };
 }
 
-function atualizarMarcadorUsuario() {
+function atualizarMarcadorUsuario(centralizar = true) {
     if (!mapa || !localizacaoUsuario) return;
 
-    mapa.setCenter(localizacaoUsuario);
+    if (centralizar) mapa.setCenter(localizacaoUsuario);
 
-    if (marcadorUsuario) marcadorUsuario.setMap(null);
-    marcadorUsuario = new google.maps.Marker({
-        position: localizacaoUsuario,
-        map: mapa,
-        title: "Você está aqui",
-        zIndex: google.maps.Marker.MAX_ZINDEX + 1,
-        icon: iconeUsuario(),
-    });
+    if (marcadorUsuario) {
+        marcadorUsuario.setPosition(localizacaoUsuario);
+    } else {
+        marcadorUsuario = new google.maps.Marker({
+            position: localizacaoUsuario,
+            map: mapa,
+            title: "Você está aqui",
+            zIndex: google.maps.Marker.MAX_ZINDEX + 1,
+            icon: iconeUsuario(),
+        });
+    }
 }
 
 function renderizarMarcadores() {
