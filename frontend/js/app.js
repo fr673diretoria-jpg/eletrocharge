@@ -358,6 +358,9 @@ function carregarGoogleMaps(chave) {
             disableDefaultUI: true,
             zoomControl: true,
         });
+        // O mapa antigo foi descartado: o marcador precisa ser recriado no novo.
+        marcadorUsuario = null;
+        if (localizacaoUsuario) atualizarMarcadorUsuario(true);
     });
 }
 
@@ -389,11 +392,12 @@ function iconeUsuario() {
 function atualizarMarcadorUsuario(centralizar = true) {
     if (!mapa || !localizacaoUsuario) return;
 
-    if (centralizar) mapa.setCenter(localizacaoUsuario);
-
     if (marcadorUsuario) {
+        if (centralizar) mapa.setCenter(localizacaoUsuario);
         marcadorUsuario.setPosition(localizacaoUsuario);
     } else {
+        // Primeira posição conhecida neste mapa: sempre centraliza, mesmo vindo do watchPosition.
+        mapa.setCenter(localizacaoUsuario);
         marcadorUsuario = new google.maps.Marker({
             position: localizacaoUsuario,
             map: mapa,
