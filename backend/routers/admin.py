@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from .. import models, ocpp_server, schemas, security
 from ..database import get_db
+from .contato import CHAVE_EMAIL_FALE_CONOSCO, obter_email_fale_conosco
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -101,6 +102,29 @@ def listar_pagamentos(
         resultado.append(saida)
 
     return resultado
+
+
+@router.get("/config-contato", response_model=schemas.EmailContatoConfig)
+def obter_config_contato(
+    admin: models.Usuario = Depends(security.exigir_admin),
+    db: Session = Depends(get_db),
+):
+    return {"email": obter_email_fale_conosco(db)}
+
+
+@router.put("/config-contato", response_model=schemas.EmailContatoConfig)
+def atualizar_config_contato(
+    dados: schemas.EmailContatoConfig,
+    admin: models.Usuario = Depends(security.exigir_admin),
+    db: Session = Depends(get_db),
+):
+    registro = db.query(models.Configuracao).filter(models.Configuracao.chave == CHAVE_EMAIL_FALE_CONOSCO).first()
+    if registro:
+        registro.valor = dados.email
+    else:
+        db.add(models.Configuracao(chave=CHAVE_EMAIL_FALE_CONOSCO, valor=dados.email))
+    db.commit()
+    return {"email": dados.email}
 
 
 @router.get("/resumo")

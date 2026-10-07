@@ -752,6 +752,24 @@ async function carregarPerfil() {
     }
 }
 
+document.getElementById("form-contato").addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    try {
+        const r = await api("/api/contato", {
+            method: "POST",
+            body: JSON.stringify({
+                assunto: document.getElementById("contato-assunto").value,
+                mensagem: document.getElementById("contato-mensagem").value,
+            }),
+        });
+        evento.target.reset();
+        mostrarToast("✅ " + r.mensagem, 4500);
+    } catch (e) {
+        if (tratarSessaoExpirada(e)) return;
+        mostrarToast(e.message);
+    }
+});
+
 // ================= PWA =================
 function registrarServiceWorker() {
     if ("serviceWorker" in navigator) {
@@ -835,8 +853,30 @@ function verificarRetornoParceiro() {
 
 async function carregarAdmin() {
     if (!usuarioAtual?.is_admin) return;
-    await Promise.all([carregarResumoAdmin(), carregarEstacoesAdmin(), carregarParceiros(), carregarTransacoesAdmin()]);
+    await Promise.all([carregarResumoAdmin(), carregarEstacoesAdmin(), carregarParceiros(), carregarTransacoesAdmin(), carregarConfigContato()]);
 }
+
+async function carregarConfigContato() {
+    try {
+        const c = await api("/api/admin/config-contato");
+        document.getElementById("config-email-contato").value = c.email;
+    } catch (e) {
+        mostrarToast(e.message);
+    }
+}
+
+document.getElementById("form-config-contato").addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    try {
+        await api("/api/admin/config-contato", {
+            method: "PUT",
+            body: JSON.stringify({ email: document.getElementById("config-email-contato").value }),
+        });
+        mostrarToast("E-mail do Fale conosco atualizado!");
+    } catch (e) {
+        mostrarToast(e.message);
+    }
+});
 
 async function carregarResumoAdmin() {
     const el = document.getElementById("resumo-admin");

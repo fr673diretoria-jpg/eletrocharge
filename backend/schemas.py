@@ -42,6 +42,15 @@ class RedefinirSenha(BaseModel):
     nova_senha: str = Field(min_length=6)
 
 
+class ContatoCreate(BaseModel):
+    assunto: str = Field(min_length=3, max_length=120)
+    mensagem: str = Field(min_length=5, max_length=2000)
+
+
+class EmailContatoConfig(BaseModel):
+    email: EmailStr
+
+
 class EstacaoCreate(BaseModel):
     nome: str = Field(min_length=2)
     endereco: str = Field(min_length=3)

@@ -20,6 +20,15 @@ class Usuario(Base):
     pagamentos = relationship("Pagamento", back_populates="usuario")
 
 
+class Configuracao(Base):
+    """Parâmetros editáveis pelo admin (chave/valor), ex.: e-mail do Fale conosco."""
+
+    __tablename__ = "configuracoes"
+
+    chave = Column(String, primary_key=True)
+    valor = Column(String, nullable=False)
+
+
 class Parceiro(Base):
     """Dono de estação (recebe o valor da recarga via split de pagamento do Mercado Pago)."""
 

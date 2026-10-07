@@ -116,6 +116,16 @@
         <section id="tab-perfil" class="tab">
             <h2 class="titulo-secao">Meu perfil</h2>
             <div id="dados-perfil" class="cartao-perfil"></div>
+
+            <h3 class="subtitulo-secao">Fale conosco</h3>
+            <form id="form-contato" class="form-auth">
+                <label>Assunto</label>
+                <input id="contato-assunto" minlength="3" maxlength="120" required>
+                <label>Mensagem</label>
+                <textarea id="contato-mensagem" rows="5" minlength="5" maxlength="2000" required></textarea>
+                <button type="submit" class="botao primario largo">Enviar mensagem</button>
+            </form>
+
             <button id="btn-sair" class="botao perigo largo">Sair da conta</button>
         </section>
 
@@ -123,6 +133,13 @@
             <h2 class="titulo-secao">Painel administrativo</h2>
 
             <div id="resumo-admin" class="grid-resumo"></div>
+
+            <h3 class="subtitulo-secao">Fale conosco</h3>
+            <form id="form-config-contato" class="form-auth">
+                <label>E-mail que recebe as mensagens do Fale conosco</label>
+                <input id="config-email-contato" type="email" required>
+                <button type="submit" class="botao primario largo">Salvar e-mail</button>
+            </form>
 
             <h3 class="subtitulo-secao">Estações de recarga</h3>
             <form id="form-estacao" class="form-auth">

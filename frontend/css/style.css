@@ -140,12 +140,13 @@ button, input, select {
     margin-bottom: 6px;
 }
 
-.form-auth input, #painel-pagamento input, #painel-pagamento select {
+.form-auth input, .form-auth textarea, #painel-pagamento input, #painel-pagamento select {
     padding: 13px 14px;
     border: 1px solid #ccd5da;
     border-radius: 10px;
     margin-bottom: 16px;
     width: 100%;
+    font: inherit;
 }
 
 .erro-auth {

@@ -63,3 +63,7 @@ SMTP_FROM = os.getenv("SMTP_FROM", "EletroCharge <nao-responda@eletrocharge.com>
 # provedores de hospedagem (ex.: Render) costumam bloquear conexões SMTP de saída.
 # Se definido, tem prioridade sobre SMTP_HOST acima.
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+
+# E-mail padrão que recebe as mensagens do "Fale conosco". O admin pode alterar pelo painel
+# (o valor salvo no banco tem prioridade sobre este).
+EMAIL_FALE_CONOSCO = os.getenv("EMAIL_FALE_CONOSCO", "fr673diretoria@gmail.com")

@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from . import models
 from .database import Base, SessionLocal, engine
-from .routers import admin, auth, estacoes, pagamentos, parceiros, publico
+from .routers import admin, auth, contato, estacoes, pagamentos, parceiros, publico
 from . import ocpp_server
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -69,6 +69,7 @@ app.include_router(pagamentos.router)
 app.include_router(publico.router)
 app.include_router(parceiros.router)
 app.include_router(admin.router)
+app.include_router(contato.router)
 app.include_router(ocpp_server.router)
 
 
