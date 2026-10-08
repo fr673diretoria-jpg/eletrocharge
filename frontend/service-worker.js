@@ -1,4 +1,4 @@
-const CACHE_NOME = "eletrocharge-v9";
+const CACHE_NOME = "eletrocharge-v10";
 const ARQUIVOS_APP_SHELL = [
     "/",
     "/css/style.css",
@@ -38,12 +38,20 @@ self.addEventListener("fetch", (evento) => {
         return;
     }
 
+    if (evento.request.method !== "GET") {
+        return;
+    }
+
+    // Rede primeiro para o app sempre atualizar; o cache só serve offline.
     evento.respondWith(
-        caches.match(evento.request).then((resposta) => {
-            return (
-                resposta ||
-                fetch(evento.request).catch(() => caches.match("/"))
-            );
-        })
+        fetch(evento.request)
+            .then((resposta) => {
+                if (resposta.ok) {
+                    const copia = resposta.clone();
+                    caches.open(CACHE_NOME).then((cache) => cache.put(evento.request, copia));
+                }
+                return resposta;
+            })
+            .catch(() => caches.match(evento.request).then((cacheada) => cacheada || caches.match("/")))
     );
 });

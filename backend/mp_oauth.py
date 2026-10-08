@@ -1,6 +1,7 @@
 """Integração OAuth do Mercado Pago (fluxo Marketplace) — usada para conectar parceiros."""
 from datetime import datetime, timedelta
 from typing import Optional
+from urllib.parse import urlencode
 
 import requests
 from sqlalchemy.orm import Session
@@ -13,10 +14,16 @@ URL_TOKEN = "https://api.mercadopago.com/oauth/token"
 
 def url_de_autorizacao(parceiro_id: int) -> str:
     redirect_uri = f"{config.APP_BASE_URL}/api/admin/parceiros/oauth/callback"
-    return (
-        f"{URL_AUTORIZAR}?client_id={config.MP_CLIENT_ID}&response_type=code"
-        f"&platform_id=mp&state={parceiro_id}&redirect_uri={redirect_uri}"
+    parametros = urlencode(
+        {
+            "client_id": config.MP_CLIENT_ID,
+            "response_type": "code",
+            "platform_id": "mp",
+            "state": parceiro_id,
+            "redirect_uri": redirect_uri,
+        }
     )
+    return f"{URL_AUTORIZAR}?{parametros}"
 
 
 def trocar_code_por_token(code: str) -> dict:
