@@ -14,3 +14,6 @@ venv/
 
 # Editor
 .vscode/
+
+# Imagens soltas (ex.: prints enviados pelo WhatsApp)
+WhatsApp Image*
