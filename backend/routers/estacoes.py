@@ -1,6 +1,6 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/estacoes", tags=["estações"])
 
 @router.get("", response_model=List[schemas.EstacaoOut])
 async def listar_estacoes(
-    filtro: str = Query("todos", enum=["todos", "livre", "rapido", "ccs"]),
+    filtro: Literal["todos", "livre", "rapido", "ccs"] = "todos",
     lat: Optional[float] = None,
     lng: Optional[float] = None,
     db: Session = Depends(get_db),
