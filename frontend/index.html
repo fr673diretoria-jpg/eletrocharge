@@ -34,10 +34,10 @@
 
         <form id="form-login" class="form-auth">
             <label>E-mail</label>
-            <input type="email" id="login-email" required autocomplete="email">
+            <input type="email" id="login-email" name="email" required autocomplete="email" enterkeyhint="next">
             <label>Senha</label>
-            <input type="password" id="login-senha" required autocomplete="current-password">
-            <button type="submit" class="botao primario largo">Entrar</button>
+            <input type="password" id="login-senha" name="password" required autocomplete="current-password" enterkeyhint="go">
+            <button type="submit" id="btn-login" class="botao primario largo">Entrar</button>
         </form>
         <a href="#" id="link-esqueci-senha" class="link-esqueci-senha">Esqueci minha senha</a>
 

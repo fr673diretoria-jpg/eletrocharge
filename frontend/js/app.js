@@ -148,10 +148,21 @@ async function iniciarApp() {
     iniciarAtualizacaoLocalizacao();
 }
 
+// Alguns teclados de celular não disparam o envio implícito do formulário ao tocar em "Ir/Enter".
+document.getElementById("login-senha").addEventListener("keydown", (evento) => {
+    if (evento.key !== "Enter" || evento.isComposing) return;
+    evento.preventDefault();
+    document.getElementById("form-login").requestSubmit();
+});
+
 document.getElementById("form-login").addEventListener("submit", async (evento) => {
     evento.preventDefault();
+    const botao = document.getElementById("btn-login");
+    if (botao.disabled) return;
     const erroEl = document.getElementById("erro-auth");
     erroEl.classList.add("oculto");
+    botao.disabled = true;
+    botao.textContent = "Entrando...";
 
     try {
         const dados = await api("/api/auth/login", {
@@ -166,6 +177,9 @@ document.getElementById("form-login").addEventListener("submit", async (evento) 
     } catch (e) {
         erroEl.textContent = e.message;
         erroEl.classList.remove("oculto");
+    } finally {
+        botao.disabled = false;
+        botao.textContent = "Entrar";
     }
 });
 
